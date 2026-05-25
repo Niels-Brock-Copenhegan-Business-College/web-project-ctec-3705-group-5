@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Dashboard — {{ app_name }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --navy:#0b1f3a; --gold:#b8963e; --gold-l:#d4af6a; --bg:#f4f5f7; --white:#ffffff; --muted:#64748b; --border:#e2e6ed; --radius:5px; }
+    *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--navy); min-height: 100vh; }
+
+    header { background: var(--navy); border-bottom: 3px solid var(--gold); padding: 0 2.5rem; height: 65px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { font-family:'Cormorant Garamond',serif; color: var(--white); font-size: 1.15rem; font-weight: 700; }
+    .brand span { color: var(--gold-l); }
+    .hdr-right { display:flex;align-items:center;gap:1.25rem; }
+    .hdr-right .name { color:rgba(255,255,255,.55);font-size:.8rem; }
+    .hdr-right .name strong { color:rgba(255,255,255,.85);font-weight:600; }
+    .btn-out { background:transparent;border:1.5px solid rgba(184,150,62,.35);color:var(--gold-l);border-radius:var(--radius);padding:.38rem .9rem;font-size:.75rem;font-weight:600;cursor:pointer;letter-spacing:.04em;transition:opacity .2s;font-family:inherit; }
+    .btn-out:hover { opacity:.75; }
+
+    .page-header { background:var(--white);border-bottom:1px solid var(--border);padding:1.75rem 2.5rem; }
+    .page-header .eyebrow { font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem; }
+    .page-header h1 { font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;color:var(--navy); }
+    .page-header p  { color:var(--muted);font-size:.85rem;margin-top:.25rem; }
+
+    .stat-row { display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;padding:1.75rem 2.5rem 0; }
+    .stat-card { background:var(--white);border-radius:8px;border:1px solid var(--border);border-top:3px solid var(--gold);padding:1.1rem 1.4rem; }
+    .stat-card .label { font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.4rem; }
+    .stat-card .value { font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:var(--navy); }
+
+    .content { padding:1.75rem 2.5rem 3rem;display:grid;gap:1.5rem; }
+    .box { background:var(--white);border-radius:8px;border:1px solid var(--border);overflow:hidden; }
+    .box-header { padding:.9rem 1.4rem;border-bottom:1px solid var(--border);background:#fafbfc; }
+    .box-header h2 { font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--navy); }
+
+    .module-row { padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);display:grid;grid-template-columns:auto 1fr;gap:1.1rem;align-items:start; }
+    .module-row:last-child { border-bottom:none; }
+    .mod-code { background:var(--navy);color:var(--gold-l);font-size:.68rem;font-weight:700;letter-spacing:.06em;padding:.28rem .65rem;border-radius:3px;white-space:nowrap; }
+    .mod-body h3 { font-weight:600;font-size:.9rem;margin-bottom:.3rem;color:var(--navy); }
+    .mod-body p  { font-size:.78rem;color:var(--muted);margin-bottom:.6rem;line-height:1.5; }
+    .prog-label  { font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:.35rem; }
+    .prog-tags   { display:flex;flex-wrap:wrap;gap:.4rem; }
+    .prog-tag    { font-size:.72rem;font-weight:600;padding:.2rem .65rem;border-radius:2px;letter-spacing:.03em; }
+    .tag-ug { background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe; }
+    .tag-pg { background:#f5f3ff;color:#5b21b6;border:1px solid #ddd6fe; }
+    .no-data { padding:2.5rem;text-align:center;color:var(--muted);font-size:.875rem; }
+
+    table { width:100%;border-collapse:collapse;font-size:.85rem; }
+    thead th { padding:.6rem 1rem;text-align:left;background:#f8f9fa;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border-bottom:2px solid var(--border); }
+    tbody td { padding:.75rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle; }
+    tbody tr:last-child td { border-bottom:none; }
+    .badge { display:inline-block;padding:.18rem .55rem;border-radius:2px;font-size:.65rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase; }
+    .badge-ug { background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe; }
+    .badge-pg { background:#f5f3ff;color:#5b21b6;border:1px solid #ddd6fe; }
+    .badge-pub { background:#f0fdf4;color:#166534;border:1px solid #bbf7d0; }
+    .badge-dft { background:#f1f5f9;color:#475569;border:1px solid #e2e8f0; }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="brand">{{ app_name }} <span>/ Staff</span></span>
+  <div class="hdr-right">
+    <span class="name">Signed in as <strong>{{ staff.name }}</strong></span>
+    <form method="post" action="/university_course_portal/public/staff/logout">
+      <button type="submit" class="btn-out">Sign Out</button>
+    </form>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="eyebrow">Staff Dashboard</div>
+  <h1>{{ staff.name }}</h1>
+  <p>{{ staff.email }}</p>
+</div>
+
+<div class="stat-row">
+  <div class="stat-card">
+    <div class="label">Modules Leading</div>
+    <div class="value">{{ moduleData|length }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Programmes Led</div>
+    <div class="value">{{ staff.ledProgrammes|length }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Programmes Reached</div>
+    {% set progSet = [] %}
+    {% for item in moduleData %}
+      {% for prog in item.programmes %}
+        {% if prog.id not in progSet %}{% set progSet = progSet|merge([prog.id]) %}{% endif %}
+      {% endfor %}
+    {% endfor %}
+    <div class="value">{{ progSet|length }}</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="box">
+    <div class="box-header"><h2>Modules I Am Leading</h2></div>
+    {% if moduleData is empty %}
+      <p class="no-data">You are not currently assigned as a leader for any modules.</p>
+    {% else %}
+      {% for item in moduleData %}
+      <div class="module-row">
+        <span class="mod-code">{{ item.module.code }}</span>
+        <div class="mod-body">
+          <h3>{{ item.module.title }}</h3>
+          <p>{{ item.module.credits }} credits{% if item.module.description %} &nbsp;&middot;&nbsp; {{ item.module.description|slice(0,100) ~ (item.module.description|length > 100 ? '…' : '') }}{% endif %}</p>
+          <div class="prog-label">Included in {{ item.programmes|length }} programme{{ item.programmes|length != 1 ? 's' : '' }}</div>
+          <div class="prog-tags">
+            {% if item.programmes is empty %}
+              <span style="color:#94a3b8;font-size:.78rem">Not assigned to any programme yet</span>
+            {% else %}
+              {% for prog in item.programmes %}
+                <span class="prog-tag {{ prog.level == 'Undergraduate' ? 'tag-ug' : 'tag-pg' }}">{{ prog.title }}</span>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <div class="box">
+    <div class="box-header"><h2>Programmes I Am Leading</h2></div>
+    {% if staff.ledProgrammes is empty %}
+      <p class="no-data">You are not currently assigned as a leader for any programmes.</p>
+    {% else %}
+      <table>
+        <thead>
+          <tr><th>Programme</th><th>Level</th><th>Duration</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for prog in staff.ledProgrammes %}
+          <tr>
+            <td><strong>{{ prog.title }}</strong></td>
+            <td><span class="badge {{ prog.level == 'Undergraduate' ? 'badge-ug' : 'badge-pg' }}">{{ prog.level }}</span></td>
+            <td>{{ prog.duration_years }} year{{ prog.duration_years > 1 ? 's' : '' }}</td>
+            <td><span class="badge {{ prog.is_published ? 'badge-pub' : 'badge-dft' }}">{{ prog.is_published ? 'Published' : 'Draft' }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+
+</div>
+</body>
+</html>
