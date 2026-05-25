@@ -1,0 +1,112 @@
+{% extends "admin/base.twig" %}
+{% set page = 'programmes' %}
+{% block title %}{{ programme ? 'Edit' : 'New' }} Programme{% endblock %}
+{% block page_title %}{{ programme ? 'Edit Programme' : 'New Programme' }}{% endblock %}
+
+{% block content %}
+<div class="box" style="max-width:900px">
+  <form method="post"
+        action="{{ programme ? '/university_course_portal/public/admin/programmes/' ~ programme.id : '/university_course_portal/public/admin/programmes' }}"
+        enctype="multipart/form-data">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="title">Programme Title *</label>
+        <input id="title" type="text" name="title" value="{{ programme.title ?? '' }}" required>
+      </div>
+      <div class="form-group">
+        <label for="level">Level *</label>
+        <select id="level" name="level" required>
+          <option value="Undergraduate" {{ (programme.level ?? '') == 'Undergraduate' ? 'selected' : '' }}>Undergraduate</option>
+          <option value="Postgraduate"  {{ (programme.level ?? '') == 'Postgraduate'  ? 'selected' : '' }}>Postgraduate</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="duration_years">Duration (Years) *</label>
+        <input id="duration_years" type="number" name="duration_years" value="{{ programme.duration_years ?? 3 }}" min="1" max="6" required>
+      </div>
+      <div class="form-group">
+        <label for="leader_id">Programme Leader</label>
+        <select id="leader_id" name="leader_id">
+          <option value="">— None —</option>
+          {% for s in staffList %}
+            <option value="{{ s.id }}" {{ (programme.leader_id ?? '') == s.id ? 'selected' : '' }}>{{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="4">{{ programme.description ?? '' }}</textarea>
+    </div>
+
+    <!-- Image Upload -->
+    <div class="form-group">
+      <label for="image">Programme Image</label>
+      {% if programme and programme.image %}
+        <div style="margin-bottom:.75rem">
+          <img src="/university_course_portal/public/uploads/programmes/{{ programme.image }}"
+               alt="Current image" style="max-width:280px;border-radius:8px;border:1px solid var(--border)">
+          <p style="font-size:.75rem;color:var(--muted);margin-top:.4rem">Upload a new image below to replace this one.</p>
+        </div>
+      {% endif %}
+      <input id="image" type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif"
+             style="padding:.45rem;border:1.5px solid var(--border);border-radius:8px;width:100%;background:#fff">
+      <p style="font-size:.75rem;color:var(--muted);margin-top:.35rem">Accepted: JPG, PNG, WEBP, GIF. Recommended size: 1200×600px.</p>
+    </div>
+
+    <div class="form-check">
+      <input id="is_published" type="checkbox" name="is_published" {{ (programme.is_published ?? 0) ? 'checked' : '' }}>
+      <label for="is_published">Published (visible to students)</label>
+    </div>
+
+    <!-- Module assignment -->
+    <div style="margin-top:1.75rem">
+      <h3 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:.5rem">
+        Assign Modules
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40px">Include</th>
+            <th>Module</th>
+            <th>Code</th>
+            <th>Credits</th>
+            <th style="width:130px">Year of Study</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for mod in modules %}
+          {% set assigned = programme ? programme.modules.firstWhere('id', mod.id) : null %}
+          <tr>
+            <td>
+              <input type="checkbox" name="module_ids[]" value="{{ mod.id }}" id="mod_{{ mod.id }}"
+                {{ assigned ? 'checked' : '' }}>
+            </td>
+            <td><label for="mod_{{ mod.id }}" style="cursor:pointer;font-weight:500">{{ mod.title }}</label></td>
+            <td><span class="badge badge-gray">{{ mod.code }}</span></td>
+            <td style="color:var(--muted);font-size:.82rem">{{ mod.credits }}</td>
+            <td>
+              <select name="module_years[{{ mod.id }}]" style="padding:.3rem .6rem;font-size:.82rem;border:1px solid var(--border);border-radius:6px">
+                {% for y in 1..6 %}
+                  <option value="{{ y }}" {{ (assigned and assigned.pivot.year_of_study == y) ? 'selected' : (not assigned and y == 1 ? 'selected' : '') }}>Year {{ y }}</option>
+                {% endfor %}
+              </select>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display:flex;gap:1rem;margin-top:1.75rem">
+      <button type="submit" class="btn btn-gold">{{ programme ? 'Save Changes' : 'Create Programme' }}</button>
+      <a href="/university_course_portal/public/admin/programmes" class="btn btn-muted">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

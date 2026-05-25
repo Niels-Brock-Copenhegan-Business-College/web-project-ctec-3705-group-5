@@ -1,0 +1,53 @@
+{% extends "admin/base.twig" %}
+{% set page = 'programmes' %}
+{% block title %}Programmes{% endblock %}
+{% block page_title %}Programmes{% endblock %}
+
+{% block content %}
+<div class="box">
+  <div class="box-header">
+    <h2>All Programmes</h2>
+    <a href="/university_course_portal/public/admin/programmes/create" class="btn btn-gold">+ New Programme</a>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Level</th>
+        <th>Leader</th>
+        <th>Duration</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in programmes %}
+      <tr>
+        <td><strong>{{ p.title }}</strong></td>
+        <td><span class="badge {{ p.level == 'Undergraduate' ? 'badge-blue' : 'badge-purple' }}">{{ p.level }}</span></td>
+        <td>{{ p.leader ? p.leader.name : '—' }}</td>
+        <td>{{ p.duration_years }} yr{{ p.duration_years > 1 ? 's' : '' }}</td>
+        <td>
+          <span class="badge {{ p.is_published ? 'badge-green' : 'badge-gray' }}">
+            {{ p.is_published ? 'Published' : 'Draft' }}
+          </span>
+        </td>
+        <td style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <a href="/university_course_portal/public/admin/programmes/{{ p.id }}/edit" class="btn btn-muted btn-sm">Edit</a>
+          <form method="post" action="/university_course_portal/public/admin/programmes/{{ p.id }}/toggle-publish" style="display:inline">
+            <button class="btn btn-sm {{ p.is_published ? 'btn-muted' : 'btn-success' }}">
+              {{ p.is_published ? 'Unpublish' : 'Publish' }}
+            </button>
+          </form>
+          <form method="post" action="/university_course_portal/public/admin/programmes/{{ p.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this programme?')">
+            <button class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:1.5rem">No programmes yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

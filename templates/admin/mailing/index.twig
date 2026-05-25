@@ -1,0 +1,123 @@
+{% extends "admin/base.twig" %}
+{% set page = 'mailing' %}
+{% block title %}Mailing List{% endblock %}
+{% block page_title %}Mailing List{% endblock %}
+
+{% block content %}
+
+{# ── Stats row ── #}
+<div class="stat-grid" style="margin-bottom:1.75rem">
+  <div class="stat-card">
+    <div class="label">Total Registrations</div>
+    <div class="value">{{ totalCount }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Unique Emails</div>
+    <div class="value">{{ uniqueEmails }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Programmes With Interest</div>
+    <div class="value">{{ uniquePrograms }}</div>
+  </div>
+</div>
+
+<div class="box">
+
+  {# ── Box header ── #}
+  <div class="box-header">
+    <h2>Interest Registrations</h2>
+    <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+      <a href="/university_course_portal/public/admin/mailing-list/compose{{ filterProg ? '?programme_id=' ~ filterProg : '' }}"
+         class="btn btn-navy">
+        Send Bulk Email{% if filterProg %} <span style="font-size:.72rem;opacity:.65">(filtered)</span>{% endif %}
+      </a>
+      <a href="/university_course_portal/public/admin/mailing-list/export{{ filterProg ? '?programme_id=' ~ filterProg : '' }}"
+         class="btn btn-success">
+        Export CSV
+      </a>
+    </div>
+  </div>
+
+  {# ── Filter bar ── #}
+  <div style="padding:.85rem 1.5rem;border-bottom:1px solid var(--border);background:#fafbfc;display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+    <form method="get" action="/university_course_portal/public/admin/mailing-list"
+          style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:0">
+      <label for="prog-filter"
+             style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);white-space:nowrap">
+        Filter by programme:
+      </label>
+      <select id="prog-filter" name="programme_id"
+              style="height:36px;padding:0 .85rem;border:1.5px solid var(--border);border-radius:5px;font-size:.82rem;font-family:inherit;color:var(--navy);background:var(--white);min-width:180px">
+        <option value="">All Programmes</option>
+        {% for p in programmes %}
+          <option value="{{ p.id }}" {{ filterProg == p.id ? 'selected' : '' }}>{{ p.title }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-muted btn-sm" style="height:36px;padding:0 1rem">Filter</button>
+      {% if filterProg %}
+        <a href="/university_course_portal/public/admin/mailing-list"
+           class="btn btn-muted btn-sm" style="height:36px;padding:0 1rem">Clear</a>
+      {% endif %}
+    </form>
+    {% if interests|length > 0 %}
+      <span style="font-size:.78rem;color:var(--muted);margin-left:auto">
+        {{ interests|length }} registration{{ interests|length != 1 ? 's' : '' }}
+        {% if filterProg %}for selected programme{% endif %}
+      </span>
+    {% endif %}
+  </div>
+
+  {# ── Table ── #}
+  <div style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Programme</th>
+          <th>Registered</th>
+          <th style="text-align:center">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in interests %}
+        <tr>
+          <td>
+            <span style="font-weight:600;color:var(--navy)">{{ r.first_name }} {{ r.last_name }}</span>
+          </td>
+          <td>
+            <a href="mailto:{{ r.email }}"
+               style="color:var(--navy);font-size:.875rem">{{ r.email }}</a>
+          </td>
+          <td style="color:var(--muted);font-size:.875rem">{{ r.phone ?: '—' }}</td>
+          <td>
+            <a href="/university_course_portal/public/admin/mailing-list?programme_id={{ r.programme_id }}"
+               style="font-size:.82rem">
+              <span class="badge badge-blue">{{ r.programme.title }}</span>
+            </a>
+          </td>
+          <td style="white-space:nowrap;font-size:.82rem;color:var(--muted)">
+            {{ r.registered_at|date('d M Y') }}
+          </td>
+          <td style="text-align:center">
+            <form method="post"
+                  action="/university_course_portal/public/admin/mailing-list/{{ r.id }}/delete"
+                  onsubmit="return confirm('Remove this registration?')">
+              <button class="btn btn-danger btn-sm">Remove</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" style="text-align:center;color:var(--muted);padding:3rem;font-size:.875rem">
+            No registrations found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock %}

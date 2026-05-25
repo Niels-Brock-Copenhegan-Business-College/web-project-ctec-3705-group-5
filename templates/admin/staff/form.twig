@@ -1,0 +1,54 @@
+{% extends "admin/base.twig" %}
+{% set page = 'staff' %}
+{% block title %}{{ member ? 'Edit' : 'Add' }} Staff Member{% endblock %}
+{% block page_title %}{{ member ? 'Edit Staff Member' : 'Add Staff Member' }}{% endblock %}
+
+{% block content %}
+<div style="max-width:640px">
+  <div class="box">
+    <div class="box-header">
+      <h2>{{ member ? 'Update Details' : 'New Staff Member' }}</h2>
+    </div>
+    <div style="padding:1.75rem 1.5rem">
+
+      <form method="post"
+            action="{{ member ? '/university_course_portal/public/admin/staff/' ~ member.id : '/university_course_portal/public/admin/staff' }}">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input id="name" type="text" name="name"
+                   value="{{ member.name ?? '' }}"
+                   placeholder="e.g. Dr. Jane Smith"
+                   required autofocus>
+          </div>
+          <div class="form-group">
+            <label for="email">University Email *</label>
+            <input id="email" type="email" name="email"
+                   value="{{ member.email ?? '' }}"
+                   placeholder="e.g. j.smith@university.ac.uk"
+                   required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="bio">Biography</label>
+          <textarea id="bio" name="bio" rows="4"
+                    placeholder="A short professional biography for this staff member...">{{ member.bio ?? '' }}</textarea>
+          <p style="font-size:.75rem;color:var(--muted);margin-top:.35rem">
+            This will be visible to prospective students on programme pages.
+          </p>
+        </div>
+
+        <div style="display:flex;gap:.75rem;align-items:center;padding-top:1.25rem;border-top:1px solid var(--border);margin-top:.5rem">
+          <button type="submit" class="btn btn-gold">
+            {{ member ? 'Save Changes' : 'Add Staff Member' }}
+          </button>
+          <a href="/university_course_portal/public/admin/staff" class="btn btn-muted">Cancel</a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
