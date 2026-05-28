@@ -25,7 +25,7 @@ class ProgrammeController
         // Group modules by year
         $byYear = [];
         foreach ($programme->modules as $mod) {
-            $year = $mod->pivot->year_of_study;
+            $year = $mod->pivot->year_of_study; 
             $byYear[$year][] = $mod;
         }
         ksort($byYear);
