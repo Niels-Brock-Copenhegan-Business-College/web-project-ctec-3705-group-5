@@ -1,0 +1,83 @@
+{% extends "admin/base.twig" %}
+{% set page = 'modules' %}
+{% block title %}{{ module ? 'Edit' : 'New' }} Module{% endblock %}
+{% block page_title %}{{ module ? 'Edit Module' : 'New Module' }}{% endblock %}
+
+{% block content %}
+<div style="max-width:680px">
+  <div class="box">
+    <div class="box-header">
+      <h2>{{ module ? 'Update Module' : 'New Module' }}</h2>
+    </div>
+    <div style="padding:1.75rem 1.5rem">
+      <form method="post"
+            action="{{ module ? '/university_course_portal/public/admin/modules/' ~ module.id : '/university_course_portal/public/admin/modules' }}"
+            enctype="multipart/form-data">
+
+        <div class="form-group">
+          <label for="title">Module Title *</label>
+          <input id="title" type="text" name="title"
+                 value="{{ module.title ?? '' }}"
+                 placeholder="e.g. Introduction to Programming"
+                 required autofocus>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="code">Module Code *</label>
+            <input id="code" type="text" name="code"
+                   value="{{ module.code ?? '' }}"
+                   placeholder="e.g. CS101"
+                   required>
+          </div>
+          <div class="form-group">
+            <label for="credits">Credits</label>
+            <input id="credits" type="number" name="credits"
+                   value="{{ module.credits ?? 20 }}" min="1">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" rows="3"
+                    placeholder="A brief description of what this module covers...">{{ module.description ?? '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="leader_id">Module Leader</label>
+          <select id="leader_id" name="leader_id">
+            <option value="">— No Leader Assigned —</option>
+            {% for s in staffList %}
+              <option value="{{ s.id }}" {{ (module.leader_id ?? '') == s.id ? 'selected' : '' }}>
+                {{ s.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="image">Module Image</label>
+          {% if module and module.image %}
+            <div style="margin-bottom:.75rem;padding:.75rem;background:#f8f9fa;border:1px solid var(--border);border-radius:6px">
+              <img src="/university_course_portal/public/{{ module.image }}"
+                   alt="Current image"
+                   style="max-width:200px;border-radius:5px;display:block;margin-bottom:.5rem">
+              <p style="font-size:.75rem;color:var(--muted);margin:0">Upload a new image below to replace this one.</p>
+            </div>
+          {% endif %}
+          <input id="image" type="file" name="image"
+                 accept="image/jpeg,image/png,image/webp"
+                 style="padding:.45rem;border:1.5px solid var(--border);border-radius:5px;width:100%;background:#fff;font-family:inherit;font-size:.82rem">
+          <p style="font-size:.75rem;color:var(--muted);margin-top:.35rem">Accepted: JPG, PNG, WEBP. Max 2MB.</p>
+        </div>
+
+        <div style="display:flex;gap:.75rem;align-items:center;padding-top:1.25rem;border-top:1px solid var(--border);margin-top:.5rem">
+          <button type="submit" class="btn btn-gold">{{ module ? 'Save Changes' : 'Create Module' }}</button>
+          <a href="/university_course_portal/public/admin/modules" class="btn btn-muted">Cancel</a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

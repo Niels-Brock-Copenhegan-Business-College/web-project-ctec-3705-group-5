@@ -1,0 +1,35 @@
+{% extends "admin/base.twig" %}
+{% set page = 'staff' %}
+{% block title %}Staff{% endblock %}
+{% block page_title %}Staff Members{% endblock %}
+
+{% block content %}
+<div class="box">
+  <div class="box-header">
+    <h2>All Staff</h2>
+    <a href="/university_course_portal/public/admin/staff/create" class="btn btn-gold">+ Add Staff</a>
+  </div>
+  <table>
+    <thead>
+      <tr><th>Name</th><th>Email</th><th>Bio</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for s in staff %}
+      <tr>
+        <td><strong>{{ s.name }}</strong></td>
+        <td>{{ s.email }}</td>
+        <td style="color:var(--muted);font-size:.85rem">{{ s.bio|slice(0,60) ~ (s.bio|length > 60 ? '…' : '') }}</td>
+        <td style="display:flex;gap:.5rem">
+          <a href="/university_course_portal/public/admin/staff/{{ s.id }}/edit" class="btn btn-muted btn-sm">Edit</a>
+          <form method="post" action="/university_course_portal/public/admin/staff/{{ s.id }}/delete" onsubmit="return confirm('Remove this staff member?')">
+            <button class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:1.5rem">No staff yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

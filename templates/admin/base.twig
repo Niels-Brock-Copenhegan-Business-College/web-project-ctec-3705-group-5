@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin{% endblock %} — {{ app_name }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:    #0b1f3a;
+      --navy2:   #122848;
+      --gold:    #b8963e;
+      --gold-l:  #d4af6a;
+      --sidebar-w: 248px;
+      --bg:      #f4f5f7;
+      --white:   #ffffff;
+      --muted:   #64748b;
+      --border:  #e2e6ed;
+      --danger:  #b91c1c;
+      --success: #15803d;
+      --radius:  5px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--navy); display: flex; min-height: 100vh; }
+    a { color: var(--gold); text-decoration: none; }
+
+    /* SIDEBAR */
+    aside.sidebar {
+      width: var(--sidebar-w);
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      overflow-y: auto;
+      z-index: 50;
+      border-right: 1px solid rgba(255,255,255,.04);
+    }
+    .sidebar-brand {
+      padding: 1.6rem 1.4rem 1.2rem;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .sidebar-brand h2 {
+      font-family: 'Cormorant Garamond', serif;
+      color: var(--white);
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+    .sidebar-brand h2 span { color: var(--gold-l); }
+    .sidebar-brand p { color: rgba(255,255,255,.3); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; margin-top: .2rem; }
+    .sidebar nav { flex: 1; padding: 1.25rem 0; }
+    .sidebar nav a {
+      display: block;
+      padding: .6rem 1.4rem;
+      color: rgba(255,255,255,.55);
+      font-size: .8rem;
+      font-weight: 500;
+      letter-spacing: .02em;
+      transition: background .15s, color .15s;
+      border-left: 3px solid transparent;
+    }
+    .sidebar nav a:hover { color: rgba(255,255,255,.9); background: rgba(255,255,255,.04); }
+    .sidebar nav a.active { color: var(--gold-l); background: rgba(184,150,62,.08); border-left-color: var(--gold); }
+    .sidebar nav .section-label {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.2);
+      padding: 1.4rem 1.4rem .4rem;
+    }
+    .sidebar-footer {
+      padding: 1.1rem 1.4rem;
+      border-top: 1px solid rgba(255,255,255,.07);
+    }
+    .sidebar-footer p { color: rgba(255,255,255,.35); font-size: .72rem; margin-bottom: .6rem; }
+    .sidebar-footer strong { color: rgba(255,255,255,.6); font-weight: 600; }
+
+    /* MAIN */
+    .main-wrap { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .topbar h1 { font-size: .95rem; font-weight: 600; letter-spacing: .01em; }
+    .topbar-right { display: flex; align-items: center; gap: 1rem; font-size: .78rem; color: var(--muted); }
+    .page-body { padding: 2rem; flex: 1; }
+
+    /* BOXES */
+    .box { background: var(--white); border-radius: 8px; border: 1px solid var(--border); margin-bottom: 1.5rem; overflow: hidden; }
+    .box-header { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.5rem; border-bottom: 1px solid var(--border); background: #fafbfc; }
+    .box-header h2 { font-size: .9rem; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; color: var(--navy); }
+
+    /* STAT CARDS */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: 1rem; margin-bottom: 1.75rem; }
+    .stat-card { background: var(--white); border-radius: 8px; border: 1px solid var(--border); padding: 1.25rem 1.5rem; border-top: 3px solid var(--gold); }
+    .stat-card .label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: .5rem; }
+    .stat-card .value { font-size: 2.1rem; font-weight: 700; color: var(--navy); font-family: 'Cormorant Garamond', serif; }
+
+    /* TABLES */
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    thead th { padding: .65rem 1rem; text-align: left; background: #f8f9fa; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); border-bottom: 2px solid var(--border); }
+    tbody td { padding: .75rem 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #fafbfc; }
+
+    /* FORMS */
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label { display: block; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--navy); margin-bottom: .4rem; }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: .6rem .9rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: .875rem;
+      font-family: inherit;
+      background: var(--white);
+      outline: none;
+      transition: border-color .2s;
+      color: var(--navy);
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { border-color: var(--gold); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-check { display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem; }
+    .form-check input { width: auto; }
+    .form-check label { margin: 0; font-weight: 500; font-size: .875rem; text-transform: none; letter-spacing: 0; }
+
+    /* BUTTONS */
+    .btn { display: inline-flex; align-items: center; gap: .35rem; padding: .5rem 1.15rem; border-radius: var(--radius); font-size: .8rem; font-weight: 600; cursor: pointer; border: none; transition: opacity .2s; text-decoration: none; font-family: inherit; letter-spacing: .03em; }
+    .btn:hover { opacity: .82; }
+    .btn-gold    { background: var(--gold); color: var(--white); }
+    .btn-navy    { background: var(--navy); color: #fff; }
+    .btn-danger  { background: var(--danger); color: #fff; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-muted   { background: var(--bg); color: var(--navy); border: 1px solid var(--border); }
+    .btn-sm      { padding: .3rem .75rem; font-size: .74rem; }
+
+    /* FLASH */
+    .flash { padding: .75rem 1.1rem; border-radius: var(--radius); margin-bottom: 1.25rem; font-size: .85rem; font-weight: 500; }
+    .flash-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .flash-error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    /* BADGES */
+    .badge { display: inline-block; padding: .18rem .55rem; border-radius: 2px; font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+    .badge-green  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .badge-gray   { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+    .badge-blue   { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .badge-purple { background: #f5f3ff; color: #5b21b6; border: 1px solid #ddd6fe; }
+
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<aside class="sidebar" role="navigation" aria-label="Admin navigation">
+  <div class="sidebar-brand">
+    <h2>{{ app_name }}</h2>
+    <p>Administration</p>
+  </div>
+  <nav>
+    <div class="section-label">Overview</div>
+    <a href="/university_course_portal/public/admin" class="{{ page == 'dashboard' ? 'active' : '' }}">Dashboard</a>
+
+    <div class="section-label">Content</div>
+    <a href="/university_course_portal/public/admin/programmes" class="{{ page == 'programmes' ? 'active' : '' }}">Programmes</a>
+    <a href="/university_course_portal/public/admin/modules"    class="{{ page == 'modules'    ? 'active' : '' }}">Modules</a>
+    <a href="/university_course_portal/public/admin/staff"      class="{{ page == 'staff'      ? 'active' : '' }}">Staff</a>
+
+    <div class="section-label">Students</div>
+    <a href="/university_course_portal/public/admin/mailing-list" class="{{ page == 'mailing' ? 'active' : '' }}">Mailing List</a>
+
+    <div class="section-label">Site</div>
+    <a href="/university_course_portal/public/" target="_blank">View Public Site</a>
+  </nav>
+  <div class="sidebar-footer">
+    <p>Signed in as <strong>{{ session.admin_name }}</strong></p>
+    <form method="post" action="/university_course_portal/public/admin/logout">
+      <button type="submit" class="btn btn-muted" style="width:100%;justify-content:center;font-size:.75rem">Sign Out</button>
+    </form>
+  </div>
+</aside>
+
+<div class="main-wrap">
+  <header class="topbar">
+    <h1>{% block page_title %}Admin{% endblock %}</h1>
+    <div class="topbar-right">
+      <span>{{ session.admin_role == 'superadmin' ? 'Super Administrator' : 'Administrator' }}</span>
+    </div>
+  </header>
+
+  <div class="page-body">
+    {% if flash_success %}
+      <div class="flash flash-success" role="alert">{{ flash_success }}</div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>
