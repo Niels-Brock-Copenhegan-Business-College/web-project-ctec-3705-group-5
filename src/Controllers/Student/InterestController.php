@@ -19,7 +19,7 @@ class InterestController
             ->where('is_published', 1)
             ->firstOrFail();
 
-        $data = $request->getParsedBody();
+        $data = $request->getParsedBody(); 
 
         $first  = htmlspecialchars(trim($data['first_name'] ?? ''), ENT_QUOTES, 'UTF-8');
         $last   = htmlspecialchars(trim($data['last_name']  ?? ''), ENT_QUOTES, 'UTF-8');
